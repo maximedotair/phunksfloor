@@ -1,5 +1,4 @@
 <?php
-	
 class tweet_bot
 {
     function oauth()
@@ -8,7 +7,6 @@ class tweet_bot
         $con = new TwitterOAuth($this->api_key, $this->api_secret, $this->access_token, $this->access_token_secret);
         return $con;
     }
-
     function read($user_id)
     {
         $con = $this->oauth();
@@ -35,8 +33,6 @@ class tweet_bot
         $this->access_token_secret = $access_token_secret;
     }
 }
-
-
 function extractString($string, $start, $end) {
     $string = " ".$string;
     $ini = strpos($string, $start);
@@ -45,7 +41,6 @@ function extractString($string, $start, $end) {
     $len = strpos($string, $end, $ini) - $ini;
     return substr($string, $ini, $len);
 }
-
 function generatetext($phunk_id){
     $arr_json = json_decode(file_get_contents('https://nll-v2-1-39luy.ondigitalocean.app/static/phunks-market-data'));
 $price = array();
@@ -55,7 +50,6 @@ foreach($arr_json->phunksOfferedForSale as $phunk){
     $id = $phunk->phunkIndex;
     $pricez = $phunk->minValue;
     $price2 = $pricez/1000000000000000000;
-
     $count_traits = count($attributes)-1;
     $value = "$count_traits traits";
     if($count_traits == '0'){
@@ -67,9 +61,7 @@ foreach($arr_json->phunksOfferedForSale as $phunk){
     if($price[$value]['price'] > $price2){
         $price[$value]['price'] = $price2;
         $price[$value]['id'] = $phunk->phunkIndex;
-        
     }
-    
     foreach($attributes as $v){
        $value = $v->value;
        if(empty($price[$value])){
@@ -78,13 +70,9 @@ foreach($arr_json->phunksOfferedForSale as $phunk){
     if($price[$value]['price'] > $price2){
         $price[$value]['price'] = $price2;
         $price[$value]['id'] = $phunk->phunkIndex;
-        
     }
-
- 
     }
 }
-
     $owner = json_decode(file_get_contents("https://nll-v2-1-39luy.ondigitalocean.app/static/owner-of?tokenId=$phunk_id"));
 if(!empty($owner->owner)){
     $owner = $owner->owner;
@@ -94,7 +82,6 @@ if(!empty($owner->owner)){
     $name = $data_phunk['data']['name'];
     $traits = $data_phunk['data']['properties'];
     $count_traits_phunk = count($traits)-1;
-
     if(strlen($phunk_id) == '1'){
         $id_img = "000$phunk_id";
     }
@@ -120,11 +107,9 @@ if(!empty($owner->owner)){
     }
     $v_price = $price[$c]['price'];
     $result_text .= "$c floor $v_price Ξ \n";
-   
 }
 return $result_text;
 }
-
 $api_key='' ;
 $api_secret='' ;
 $access_token ='' ;
@@ -136,8 +121,6 @@ $result = $tweet->read('PhunkBot');
 //7934
 foreach ($result as $key => $value) {
     $latest = $value->text;
-
-
 $phid = extractString($latest,'#',' ');
 $phid = (int)$phid;
 $publish = FALSE;
@@ -149,37 +132,16 @@ if (strpos($latest, 'was flipped') !== false) {
 }
 $latest_id = $value->id;
 if($publish){
-    echo "ici";
-    $generated = generatetext($phid);
-    $text = "$generated More @ https://www.phunksfloor.com/?id=$phid @PhunkBot";
+    $generate = generatetext($phid);
+    $text = "$generate More @ https://www.phunksfloor.com/?id=$phid @PhunkBot";
     if(!file_exists($latest_id)){
         file_put_contents($latest_id, $text);
-       echo "On publie sous $latest_id publish $text<br>";
        $tweet->reply($text,$latest_id);
-    }
-    else {
-      echo "$latest_id deja publié $latest<br>";
     }
 }
 else {
-   
     if(!file_exists($latest_id)){
         file_put_contents($latest_id, "");
-        echo "$latest_id pas publié rien a mettre $latest<br>";
-    }
-    else {
-        if($publish){
-            echo "$latest_id deja existant rien à mettre dedans // $text // TRUE<br>";
-        }
-        else {
-            echo "$latest_id deja existant rien à mettre dedans // $text // FALSE<br>";
-        }
-        
     }
 }
-
 }
-
-
-
-?>
