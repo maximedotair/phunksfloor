@@ -1,33 +1,33 @@
 <?php
 $eth_price = json_decode(file_get_contents('https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD'))->USD;
 $arr_json = json_decode(file_get_contents('https://nll-v2-1-39luy.ondigitalocean.app/static/phunks-market-data'));
-$price = array();
+$price_arr = array();
 foreach ($arr_json->phunksOfferedForSale as $phunk) {
     $metadata = $phunk->data;
     $attributes = $metadata->properties;
     $id = $phunk->phunkIndex;
-    $pricez = $phunk->minValue;
-    $price2 = $pricez / 1000000000000000000;
+    $price_base = $phunk->minValue;
+    $price_display = $price_base/1000000000000000000;
     $count_traits = count($attributes) - 1;
     $value = "$count_traits traits";
     if ($count_traits == '0') {
         $value = "$count_traits trait";
     }
-    if (empty($price[$value])) {
-        $price[$value]['price'] = '999999999999999999999999999';
+    if (empty($price_arr[$value])) {
+        $price_arr[$value]['price'] = '999999999999999999999999999';
     }
-    if ($price[$value]['price'] > $price2) {
-        $price[$value]['price'] = $price2;
-        $price[$value]['id'] = $phunk->phunkIndex;
+    if ($price_arr[$value]['price'] > $price_display) {
+        $price_arr[$value]['price'] = $price_display;
+        $price_arr[$value]['id'] = $phunk->phunkIndex;
     }
     foreach ($attributes as $v) {
         $value = $v->value;
-        if (empty($price[$value])) {
-            $price[$value]['price'] = '999999999999999999999999999';
+        if (empty($price_arr[$value])) {
+            $price_arr[$value]['price'] = '999999999999999999999999999';
         }
-        if ($price[$value]['price'] > $price2) {
-            $price[$value]['price'] = $price2;
-            $price[$value]['id'] = $phunk->phunkIndex;
+        if ($price_arr[$value]['price'] > $price_display) {
+            $price_arr[$value]['price'] = $price_display;
+            $price_arr[$value]['id'] = $phunk->phunkIndex;
         }
     }
 }
@@ -69,14 +69,14 @@ if (!empty($adress)) {
             $phunks_text .=  "<div class='col-6 col-md-3 text-center'><a href='https://notlarvalabs.com/cryptophunks/details/$phunk_id' target='_blank' class='text-decoration-none'><h3 class='mb-2 text-dark'>$name</h3> <br> <img src='$img' width='150px' style='image-rendering:pixelated;background:#638596;width:150px'><br><span class='text-dark'>This phunk have $count_traits_phunk traits :</span> <br>";
             foreach ($traits as $v_trait) {
                 $v_name = $v_trait['value'];
-                $v_price = $price[$v_name]['price'];
+                $v_price = $price_arr[$v_name]['price'];
                 $phunks_text .= "$v_name floor price $v_price Ξ<br>";
             }
             $c = "$count_traits_phunk traits";
             if ($count_traits_phunk == '0') {
                 $c = "$count_traits_phunk trait";
             }
-            $v_price = $price[$c]['price'];
+            $v_price = $price_arr[$c]['price'];
             $phunks_text .= "$c floor price $v_price Ξ</a></div>";
         }
         $phunks_text .= "</div>";
@@ -112,14 +112,14 @@ if (!empty($adress)) {
         }
         foreach ($traits as $v_trait) {
             $v_name = $v_trait['value'];
-            $v_price = $price[$v_name]['price'];
+            $v_price = $price_arr[$v_name]['price'];
             $result_text .= "$v_name floor price $v_price Ξ<br>";
         }
         $c = "$count_traits_phunk traits";
         if ($count_traits_phunk == '0') {
             $c = "$count_traits_phunk trait";
         }
-        $v_price = $price[$c]['price'];
+        $v_price = $price_arr[$c]['price'];
         $result_text .= "$c floor price $v_price Ξ</a></div></div>";
     }
 }

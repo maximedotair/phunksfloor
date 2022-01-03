@@ -43,33 +43,33 @@ function extractString($string, $start, $end) {
 }
 function generatetext($phunk_id){
     $arr_json = json_decode(file_get_contents('https://nll-v2-1-39luy.ondigitalocean.app/static/phunks-market-data'));
-$price = array();
+$price_arr= array();
 foreach($arr_json->phunksOfferedForSale as $phunk){
     $metadata = $phunk->data;
     $attributes = $metadata->properties;
-    $id = $phunk->phunkIndex;
-    $pricez = $phunk->minValue;
-    $price2 = $pricez/1000000000000000000;
+
+    $price_base = $phunk->minValue;
+    $price_display = $price_base/1000000000000000000;
     $count_traits = count($attributes)-1;
     $value = "$count_traits traits";
     if($count_traits == '0'){
         $value = "$count_traits trait";  
     }
-    if(empty($price[$value])){
-        $price[$value]['price'] = '999999999999999999999999999';        
+    if(empty($price_arr[$value])){
+        $price_arr[$value]['price'] = '999999999999999999999999999';        
     }
-    if($price[$value]['price'] > $price2){
-        $price[$value]['price'] = $price2;
-        $price[$value]['id'] = $phunk->phunkIndex;
+    if($price_arr[$value]['price'] > $price_display){
+        $price_arr[$value]['price'] = $price_display;
+        $price_arr[$value]['id'] = $phunk->phunkIndex;
     }
     foreach($attributes as $v){
        $value = $v->value;
-       if(empty($price[$value])){
-        $price[$value]['price'] = '999999999999999999999999999';        
+       if(empty($price_arr[$value])){
+        $price_arr[$value]['price'] = '999999999999999999999999999';        
     }
-    if($price[$value]['price'] > $price2){
-        $price[$value]['price'] = $price2;
-        $price[$value]['id'] = $phunk->phunkIndex;
+    if($price_arr[$value]['price'] > $price_display){
+        $price_arr[$value]['price'] = $price_display;
+        $price_arr[$value]['id'] = $phunk->phunkIndex;
     }
     }
 }
@@ -98,14 +98,14 @@ if(!empty($owner->owner)){
     $result_text = '';
     foreach($traits as $v_trait){
         $v_name = $v_trait['value'];
-        $v_price = $price[$v_name]['price'];
+        $v_price = $price_arr[$v_name]['price'];
         $result_text .= "$v_name floor $v_price Ξ \n";
     }
     $c = "$count_traits_phunk traits";
     if($count_traits_phunk == '0'){
         $c = "$count_traits_phunk trait";  
     }
-    $v_price = $price[$c]['price'];
+    $v_price = $price_arr[$c]['price'];
     $result_text .= "$c floor $v_price Ξ \n";
 }
 return $result_text;
@@ -117,8 +117,7 @@ $access_token_key='' ;
 $tweet= new tweet_bot;
 $tweet->setKey($api_key, $api_secret,$access_token , $access_token_key);
 $result = $tweet->read('PhunkBot');
-//print_r($result);
-//7934
+
 foreach ($result as $key => $value) {
     $latest = $value->text;
 $phid = extractString($latest,'#',' ');
